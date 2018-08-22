@@ -10,7 +10,11 @@ public class Main {
     public static void main(String[] args) {
         MailSender mailSender = new MailSender();
         while (true) {
-            mailSender.sendMail();
+            try {
+                mailSender.sendMail();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
             Thread.sleep(1000);
         }
     }
