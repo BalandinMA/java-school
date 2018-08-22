@@ -3,6 +3,7 @@ package never_use_switch;
 /**
  * @author Evgeny Borisov
  */
+@MailCode(1)
 public class WelcomeMailGenerator implements MailGenerator {
     @Override
     public String generateHtml(MailInfo mailInfo) {
@@ -10,8 +11,5 @@ public class WelcomeMailGenerator implements MailGenerator {
         return "welcome " + mailInfo.getClientName();
     }
 
-    @Override
-    public int getMyCode() {
-        return 1;
-    }
+
 }

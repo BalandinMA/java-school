@@ -22,8 +22,12 @@ public class MailSender {
         Set<Class<? extends MailGenerator>> classes = scanner.getSubTypesOf(MailGenerator.class);
         for (Class<? extends MailGenerator> generatorClass : classes) {
             if (!Modifier.isAbstract(generatorClass.getModifiers())) {
+                MailCode annotation = generatorClass.getAnnotation(MailCode.class);
+                if (annotation == null) {
+                    throw new IllegalStateException("each class which impl " + MailGenerator.class.getSimpleName() + " must be marked with annotation" + MailCode.class.getName());
+                }
+                int mailCode = annotation.value();
                 MailGenerator mailGenerator = generatorClass.newInstance();
-                int mailCode = mailGenerator.getMyCode();
                 if(generatorMap.containsKey(mailCode)) {
                     throw new AlreadyInUseException(mailCode + " already in use");
                 }
@@ -35,10 +39,10 @@ public class MailSender {
     public void sendMail() {
         MailInfo mailInfo = mailDao.getMailInfo();
         int mailCode = mailInfo.getMailCode();
-        MailGenerator mailGenerator = generatorMap.get(mailCode);
-        if (mailGenerator == null) {
+        MailGenerator mailGenerator = generatorMap.getOrDefault(mailCode, mailInfo1 -> {
             throw new UnsupportedOperationException(mailCode + " not supported yet");
-        }
+        });
+
         String html = mailGenerator.generateHtml(mailInfo);
         send(html,mailInfo);
 
