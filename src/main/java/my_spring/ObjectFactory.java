@@ -16,11 +16,18 @@ public class ObjectFactory {
     private Config config = new JavaConfig();
     private Reflections scanner = new Reflections("my_spring");
 
+    private List<ObjectConfigurator> objectConfiguratorList = new ArrayList<>();
+
     public static ObjectFactory getInstance() {
         return ourInstance;
     }
 
+    @SneakyThrows
     private ObjectFactory() {
+        Set<Class<? extends ObjectConfigurator>> classes = scanner.getSubTypesOf(ObjectConfigurator.class);
+        for (Class<? extends ObjectConfigurator> clazz : classes) {
+            objectConfiguratorList.add(clazz.newInstance());
+        }
     }
 
 
@@ -38,25 +45,16 @@ public class ObjectFactory {
             type = implClass;
         }
         T t = type.newInstance();
-
+        configure(t);
         return t;
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    private <T> void configure(T t) {
+        for (ObjectConfigurator objectConfigurator : objectConfiguratorList) {
+            objectConfigurator.configure(t);
+        }
+    }
 
 
 }
