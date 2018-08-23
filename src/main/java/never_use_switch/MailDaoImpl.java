@@ -9,6 +9,7 @@ public class MailDaoImpl implements MailDao {
 
     private static DataFactory dataFactory = new DataFactory();
 
+
     @Override
     public MailInfo getMailInfo() {
         return MailInfo.builder().
