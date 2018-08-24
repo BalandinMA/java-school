@@ -2,10 +2,14 @@ package my_spring;
 
 import heroes.RandomFactory;
 import lombok.SneakyThrows;
+import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 
+import javax.annotation.PostConstruct;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,16 +46,22 @@ public class ObjectFactory {
         T t = type.newInstance();
 
         configure(t);
+        invokeInitMethods(type, t);
 
 
         return t;
 
     }
 
-
-
-
-
+    private <T> void invokeInitMethods(Class<T> type, T t) throws IllegalAccessException, InvocationTargetException {
+        Set<Method> methods = ReflectionUtils.getAllMethods(type);
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(PostConstruct.class)) {
+                method.setAccessible(true);
+                method.invoke(t);
+            }
+        }
+    }
 
 
     private <T> void configure(T t) throws Exception {
