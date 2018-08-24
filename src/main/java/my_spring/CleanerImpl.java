@@ -1,5 +1,7 @@
 package my_spring;
 
+import java.util.Date;
+
 /**
  * @author Evgeny Borisov
  */
