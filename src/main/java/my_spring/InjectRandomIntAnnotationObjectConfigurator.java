@@ -1,8 +1,10 @@
 package my_spring;
 
 import heroes.RandomFactory;
+import org.reflections.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.util.Set;
 
 /**
  * @author Evgeny Borisov
@@ -11,7 +13,7 @@ public class InjectRandomIntAnnotationObjectConfigurator implements ObjectConfig
     @Override
     public void configure(Object t) throws Exception {
         Class<?> type = t.getClass();
-        Field[] fields = type.getDeclaredFields();
+        Set<Field> fields = ReflectionUtils.getAllFields(type);
         for (Field field : fields) {
             if (field.isAnnotationPresent(InjectRandomInt.class)) {
                 InjectRandomInt annotation = field.getAnnotation(InjectRandomInt.class);

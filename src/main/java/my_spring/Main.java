@@ -5,7 +5,10 @@ package my_spring;
  */
 public class Main {
     public static void main(String[] args) {
-        IRobot iRobot = ObjectFactory.getInstance().createObject(IRobot.class);
-        iRobot.cleanRoom();
+      /*  IRobot iRobot = ObjectFactory.getInstance().createObject(IRobot.class);
+        iRobot.cleanRoom();*/
+        BeerService beerService = ObjectFactory.getInstance().createObject(BeerService.class);
+        beerService.drinkBeer();
+        beerService.goToToilet();
     }
 }
