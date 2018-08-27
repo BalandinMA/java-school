@@ -60,13 +60,32 @@ public class ObjectFactory {
                     return retVal;
                 }
             });
+        } else {
+
+        if (ReflectionUtils.getAllMethods(type).stream().anyMatch(method -> method.isAnnotationPresent(Benchmark.class))) {
+            Class<T> finalType = type;
+            return (T) Proxy.newProxyInstance(type.getClassLoader(), type.getInterfaces(), new InvocationHandler() {
+                @Override
+                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                    Method classMethod = finalType.getMethod(method.getName(), method.getParameterTypes());
+                    if (classMethod.isAnnotationPresent(Benchmark.class)) {
+                        System.out.println("********** benchmark for method " + method.getName() + " was started ***********");
+                        long start = System.nanoTime();
+                        Object retVal = method.invoke(t, args);
+                        long end = System.nanoTime();
+                        System.out.println(end - start);
+                        System.out.println("********** benchmark for method " + method.getName() + " was ended ***********");
+                        return retVal;
+                    }
+                    return method.invoke(t, args);
+                }
+            });
         }
 
 
 
-
         return t;
-
+        }
     }
 
 
