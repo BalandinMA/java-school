@@ -21,6 +21,7 @@ public class ObjectFactory {
     private Config config = new JavaConfig();
     private Reflections scanner = new Reflections("my_spring");
     private Set<ObjectConfigurator> configurators = new HashSet<>();
+    private Set<ProxyConfigurator> proxyConfigurators = new HashSet<>();
 
     public static ObjectFactory getInstance() {
         return ourInstance;
@@ -32,6 +33,12 @@ public class ObjectFactory {
         for (Class<? extends ObjectConfigurator> clazz : objectConfiguratorClasses) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 configurators.add(clazz.newInstance());
+            }
+        }
+        Set<Class<? extends ProxyConfigurator>> set = scanner.getSubTypesOf(ProxyConfigurator.class);
+        for (Class<? extends ProxyConfigurator> clazz : set) {
+            if (!Modifier.isAbstract(clazz.getModifiers())) {
+                proxyConfigurators.add(clazz.newInstance());
             }
         }
     }
@@ -47,30 +54,19 @@ public class ObjectFactory {
 
         invokeInitMethods(type, t);
 
-        if (type.isAnnotationPresent(Benchmark.class)) {
-            return (T) Proxy.newProxyInstance(type.getClassLoader(), type.getInterfaces(), new InvocationHandler() {
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                    System.out.println("********** benchmark for method " + method.getName() + " was started ***********");
-                    long start = System.nanoTime();
-                    Object retVal = method.invoke(t, args);
-                    long end = System.nanoTime();
-                    System.out.println(end-start);
-                    System.out.println("********** benchmark for method " + method.getName() + " was ended ***********");
-                    return retVal;
-                }
-            });
-        }
-
-
+        t = wrapWithProxyIfNeeded(type, t);
 
 
         return t;
 
     }
 
-
-
+    private <T> T wrapWithProxyIfNeeded(Class<T> type, T t) {
+        for (ProxyConfigurator proxyConfigurator : proxyConfigurators) {
+            t = (T) proxyConfigurator.wrapWithProxy(t, type);
+        }
+        return t;
+    }
 
 
     private <T> void invokeInitMethods(Class<T> type, T t) throws IllegalAccessException, InvocationTargetException {
