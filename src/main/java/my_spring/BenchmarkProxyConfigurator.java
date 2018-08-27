@@ -12,6 +12,9 @@ import java.lang.reflect.Proxy;
  * @author Evgeny Borisov
  */
 public class BenchmarkProxyConfigurator implements ProxyConfigurator {
+    private BenchmarkToggle benchmarkToggle = new BenchmarkToggle();
+
+
     @Override
     public Object wrapWithProxy(Object t, Class type) {
         boolean methodNeedsBenchmark = ReflectionUtils.getAllMethods(type).stream().anyMatch(method -> method.isAnnotationPresent(Benchmark.class));
@@ -31,15 +34,15 @@ public class BenchmarkProxyConfigurator implements ProxyConfigurator {
 
     private Object invoke(Object t, Class type, Method method, Object[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Method classMethod = type.getMethod(method.getName(), method.getParameterTypes());
-        if (classMethod.isAnnotationPresent(Benchmark.class)||type.isAnnotationPresent(Benchmark.class)) {
+        if (benchmarkToggle.isEnabled() && (classMethod.isAnnotationPresent(Benchmark.class) || type.isAnnotationPresent(Benchmark.class))) {
             System.out.println("********** benchmark for method " + method.getName() + " was started ***********");
             long start = System.nanoTime();
             Object retVal = method.invoke(t, args);
             long end = System.nanoTime();
-            System.out.println(end-start);
+            System.out.println(end - start);
             System.out.println("********** benchmark for method " + method.getName() + " was ended ***********");
             return retVal;
-        }else {
+        } else {
             return method.invoke(t, args);
         }
     }
