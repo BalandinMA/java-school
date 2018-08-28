@@ -4,12 +4,14 @@ import lombok.SneakyThrows;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.OptionalDouble;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Comparator.reverseOrder;
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * @author Evgeny Borisov
@@ -21,10 +23,12 @@ public class CountWordsMain {
         BufferedReader reader = new BufferedReader(new FileReader("data/song.txt"));
         Stream<String> lines = reader.lines();
 
-        HashMap<String, Integer> map = new HashMap<>();
 
+        lines.map(String::toLowerCase)
+                .flatMap(line -> Arrays.stream(line.split("\\W+")))
+                .collect(groupingBy(word -> word, counting()))
+                .entrySet().stream().sorted(comparingByValue(reverseOrder()))
+                .forEach(System.out::println);
 
-        OptionalDouble average = lines.flatMap(line -> Arrays.stream(line.split("\\W+"))).mapToInt(String::length).average();
-        System.out.println("average.getAsDouble() = " + average.orElse(0));
     }
 }

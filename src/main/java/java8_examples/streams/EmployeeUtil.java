@@ -11,11 +11,17 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.groupingBy;
+
 /**
  * @author Evgeny Borisov
  */
 public class EmployeeUtil {
 
+
+    public static Map<Seniority, List<Employee>> mapBySeniority(List<Employee> employees) {
+        return employees.stream().collect(groupingBy(emp -> Seniority.findBySalary(emp.getSalary())));
+    }
 
     public static Map<String, Integer> getNameVsSalary(List<Employee> employees) {
         return employees.stream().collect(Collectors.toMap(Employee::getName, Employee::getSalary,
