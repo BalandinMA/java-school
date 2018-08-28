@@ -24,14 +24,30 @@ public class MailSender {
             if (!Modifier.isAbstract(generatorClass.getModifiers())) {
                 MailCode annotation = generatorClass.getAnnotation(MailCode.class);
                 if (annotation == null) {
-                    throw new IllegalStateException("each class which impl " + MailGenerator.class.getSimpleName() + " must be marked with annotation" + MailCode.class.getName());
+                    MailCode.List annotationList = generatorClass.getAnnotation(MailCode.List.class);
+                    if (annotationList == null) {
+                        throw new IllegalStateException("each class which impl " + MailGenerator.class.getSimpleName() + " must be marked with annotation" + MailCode.class.getName());
+                    } else {
+                        for (MailCode annotationI : annotationList.value()) {
+                            if (annotationI == null) {
+                                throw new IllegalStateException("each class which impl " + MailGenerator.class.getSimpleName() + " must be marked with annotation" + MailCode.class.getName());
+                            }
+                            int mailCode = annotationI.value();
+                            MailGenerator mailGenerator = generatorClass.newInstance();
+                            if (generatorMap.containsKey(mailCode)) {
+                                throw new AlreadyInUseException(mailCode + " already in use");
+                            }
+                            generatorMap.put(mailCode, mailGenerator);
+                        }
+                    }
+                } else {
+                    int mailCode = annotation.value();
+                    MailGenerator mailGenerator = generatorClass.newInstance();
+                    if (generatorMap.containsKey(mailCode)) {
+                        throw new AlreadyInUseException(mailCode + " already in use");
+                    }
+                    generatorMap.put(mailCode, mailGenerator);
                 }
-                int mailCode = annotation.value();
-                MailGenerator mailGenerator = generatorClass.newInstance();
-                if(generatorMap.containsKey(mailCode)) {
-                    throw new AlreadyInUseException(mailCode + " already in use");
-                }
-                generatorMap.put(mailCode, mailGenerator);
             }
         }
     }
@@ -44,13 +60,13 @@ public class MailSender {
         });
 
         String html = mailGenerator.generateHtml(mailInfo);
-        send(html,mailInfo);
+        send(html, mailInfo);
 
     }
 
-    private void send(String html,MailInfo mailInfo) {
+    private void send(String html, MailInfo mailInfo) {
         //20 lines of code
-        System.out.println("Sending to "+mailInfo.getClientMail());
+        System.out.println("Sending to " + mailInfo.getClientMail());
         System.out.println("html = " + html);
     }
 }

@@ -16,6 +16,7 @@ public class Main {
                 System.out.println(e);
             }
             Thread.sleep(1000);
+            System.out.println("- - - - - -");
         }
     }
 }
