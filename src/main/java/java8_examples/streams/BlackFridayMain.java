@@ -1,5 +1,9 @@
 package java8_examples.streams;
 
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
@@ -21,7 +25,22 @@ import static java.util.stream.Collectors.groupingBy;
 /**
  * @author Evgeny Borisov
  */
+@ComponentScan(basePackages = "com.db")
+@ComponentScan(basePackages = "com.ebay")
+@ComponentScan(basePackages = "com.ebay")
+@ComponentScan(basePackages = "com.ebay")
+@ComponentScan(basePackages = "com.ebay")
+@Component
 public class BlackFridayMain {
+
+
+    @Scheduled(cron = "1/1 * * * FRI")
+    @Scheduled(cron = "1/10 * * * MON")
+    @Scheduled(cron = "1/10 * * * MON")
+    @Scheduled(cron = "1/10 * * * MON")
+    @Scheduled(cron = "1/10 * * * MON")
+
+
     public static void main(String[] args) {
         int startYear = 1900;
         int endYear = 2020;
